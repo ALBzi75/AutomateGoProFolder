@@ -1,0 +1,38 @@
+import os
+import shutil
+from datetime import datetime
+
+# Define the directory
+verzeichnis = r"D:\DCIM\100GOPRO"
+
+# Filter for LRV and THM files
+lrv_thm_dateien = [f for f in os.listdir(verzeichnis) if os.path.isfile(os.path.join(verzeichnis, f)) and f.lower().endswith(('.lrv', '.thm'))]
+
+# Delete the found files
+for datei in lrv_thm_dateien:
+    datei_path = os.path.join(verzeichnis, datei)
+    os.remove(datei_path)
+    print(f"Gelöscht: {datei}")
+
+# Group files by modification date
+datei_gruppen = {}
+for f in os.listdir(verzeichnis):
+    if os.path.isfile(os.path.join(verzeichnis, f)):
+        datei_path = os.path.join(verzeichnis, f)
+        mod_date = datetime.fromtimestamp(os.path.getmtime(datei_path)).strftime("%d.%m.%Y")
+        if mod_date not in datei_gruppen:
+            datei_gruppen[mod_date] = []
+        datei_gruppen[mod_date].append(datei_path)
+
+# Move the grouped files to the target directory
+for ordner_name, dateien in datei_gruppen.items():
+    ordner_pfad = os.path.join(verzeichnis, ordner_name)
+
+    # Create the folder if it doesn't exist
+    if not os.path.exists(ordner_pfad):
+        os.makedirs(ordner_pfad)
+
+    # Move the files to the new folder
+    for datei in dateien:
+        shutil.move(datei, ordner_pfad)
+    print(f"Dateien mit Änderungsdatum {ordner_name} verschoben nach {ordner_pfad}")
